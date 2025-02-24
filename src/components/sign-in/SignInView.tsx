@@ -8,13 +8,13 @@ export const SignInView: React.FC<SignInViewProps> = ({
   handleChange,
   handleBlur,
   handleSubmit,
-}) => {
-  return (
+}) =>
+  (
     <div className="h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md">
         <div className="bg-white shadow-md rounded-xl p-8">
           <h1 className="text-2xl font-bold text-gray-800 text-center mb-6">
-                        Sign In
+                Sign In
           </h1>
 
           {errors.general && (
@@ -26,7 +26,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
           <form onSubmit={handleSubmit} noValidate>
             <div className="mb-4">
               <label htmlFor="email" className="block text-sm font-medium mb-2">
-                                Email address
+                    Email address
               </label>
               <input
                 type="email"
@@ -46,7 +46,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
 
             <div className="mb-6">
               <label htmlFor="password" className="block text-sm font-medium mb-2">
-                                Password
+                    Password
               </label>
               <input
                 type="password"
@@ -67,7 +67,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+              className="cursor-pointer w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
             >
               {isLoading ? (
                 <>
@@ -84,4 +84,3 @@ export const SignInView: React.FC<SignInViewProps> = ({
       </div>
     </div>
   );
-};

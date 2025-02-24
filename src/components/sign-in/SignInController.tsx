@@ -74,7 +74,6 @@ export const SignInController: React.FC = () => {
     const validationErrors = validateSignInCredentials(credentials);
     setErrors(validationErrors);
 
-    // Check if there are any errors
     if (Object.values(validationErrors).some((error) => error !== null)) {
       return;
     }
@@ -95,8 +94,8 @@ export const SignInController: React.FC = () => {
         dispatch(loginFailure('Invalid email or password'));
         setErrors((prev) => ({ ...prev, general: 'Invalid email or password' }));
       }
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+
+    } catch {
       dispatch(loginFailure('An error occurred during sign in'));
       setErrors((prev) => ({ ...prev, general: 'An error occurred during sign in' }));
     }

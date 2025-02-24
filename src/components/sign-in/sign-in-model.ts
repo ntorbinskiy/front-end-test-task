@@ -46,18 +46,14 @@ export const validateSignInCredentials = (credentials: SignInCredentials): SignI
   const emailValidation = validateEmail(credentials.email);
   const passwordValidation = validatePassword(credentials.password);
 
-  const errors: SignInErrors = {
+  const hasGeneralError =
+        emailValidation.isValid &&
+        passwordValidation.isValid &&
+        (credentials.email !== REQUIRED_EMAIL || credentials.password !== REQUIRED_PASSWORD);
+
+  return {
     email: emailValidation.error,
     password: passwordValidation.error,
-    general: null,
+    general: hasGeneralError ? 'Invalid email or password' : null,
   };
-
-  // Check if credentials match required values
-  if (emailValidation.isValid && passwordValidation.isValid) {
-    if (credentials.email !== REQUIRED_EMAIL || credentials.password !== REQUIRED_PASSWORD) {
-      errors.general = 'Invalid email or password';
-    }
-  }
-
-  return errors;
 };
