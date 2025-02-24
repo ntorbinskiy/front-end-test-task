@@ -16,6 +16,7 @@ import {
 } from 'recharts';
 import { HomePageViewProps } from './HomePageController';
 import { FilterOption, SortOption } from './home-model';
+import { ProgressBar } from './components/ProgressBar';
 
 export const HomePageView: React.FC<HomePageViewProps> = ({
   isLoading,
@@ -26,7 +27,7 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
   dropdownState,
   handlers,
   colors,
-}) => {
+}): JSX.Element => {
   // Show loading state
   if (isLoading) {
     return (
@@ -131,6 +132,24 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
     );
   };
 
+  // Function to render attribute progress bars with different colors
+  const getColorForAttribute = (attribute: string): string => {
+    switch (attribute) {
+    case 'adaptability':
+      return 'bg-blue-600';
+    case 'affection_level':
+      return 'bg-pink-500';
+    case 'intelligence':
+      return 'bg-purple-500';
+    case 'energy_level':
+      return 'bg-orange-500';
+    case 'child_friendly':
+      return 'bg-green-500';
+    default:
+      return 'bg-blue-600';
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Cat Breeds Statistics</h1>
@@ -140,7 +159,7 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
         {/* Adaptability Chart */}
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <h2 className="text-xl font-semibold mb-4">
-                        Adaptability Distribution
+              Adaptability Distribution
           </h2>
           <div className="h-[300px]">
             <ResponsiveContainer>
@@ -203,7 +222,7 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
         {/* Indoor vs Outdoor Chart */}
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <h2 className="text-xl font-semibold mb-4">
-                        Indoor vs Outdoor Preference
+              Indoor vs Outdoor Preference
           </h2>
           <div className="h-[300px]">
             <ResponsiveContainer>
@@ -282,7 +301,7 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
           {/* Search */}
           <div>
             <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
-                            Search
+                Search
             </label>
             <input
               type="text"
@@ -297,7 +316,7 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
           {/* Filter */}
           <div>
             <label htmlFor="filter" className="block text-sm font-medium text-gray-700 mb-1">
-                            Filter By
+                Filter By
             </label>
             {renderFilterOptions()}
           </div>
@@ -305,7 +324,7 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
           {/* Sort */}
           <div>
             <label htmlFor="sort" className="block text-sm font-medium text-gray-700 mb-1">
-                            Sort By
+                Sort By
             </label>
             {renderSortOptions()}
           </div>
@@ -330,18 +349,36 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
                 <p className="mt-3 text-gray-500 line-clamp-3">
                   {cat.description || 'No description available'}
                 </p>
-                <div className="mt-4 space-y-2">
+
+                <div className="mt-4 space-y-3">
+                  {/* Adaptability Progress Bar */}
+                  <ProgressBar
+                    label="Adaptability"
+                    value={cat.adaptability}
+                    maxValue={5}
+                    colorClass={getColorForAttribute('adaptability')}
+                  />
+
+                  {/* Affection Level Progress Bar */}
+                  <ProgressBar
+                    label="Affection Level"
+                    value={cat.affection_level}
+                    maxValue={5}
+                    colorClass={getColorForAttribute('affection_level')}
+                  />
+
+                  {/* Intelligence Progress Bar */}
+                  <ProgressBar
+                    label="Intelligence"
+                    value={cat.intelligence}
+                    maxValue={5}
+                    colorClass={getColorForAttribute('intelligence')}
+                  />
+
+                  {/* Life Span text only */}
                   <div className="flex justify-between">
-                    <span>Adaptability:</span>
-                    <span>{cat.adaptability}/5</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Affection Level:</span>
-                    <span>{cat.affection_level}/5</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Life Span:</span>
-                    <span>{cat.life_span} years</span>
+                    <span className="text-sm font-medium text-gray-700">Life Span:</span>
+                    <span className="text-sm font-medium text-gray-700">{cat.life_span} years</span>
                   </div>
                 </div>
               </div>
