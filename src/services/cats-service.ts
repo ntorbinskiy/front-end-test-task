@@ -1,12 +1,24 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-interface CatModel {
-	weight: { imperial: string; metric: string };
+export interface CatWeight {
+	imperial: string;
+	metric: string;
+}
+
+export interface CatImage {
+	id: string;
+	width: number;
+	height: number;
+	url: string;
+}
+
+export interface CatBreed {
+	weight: CatWeight;
 	id: string;
 	name: string;
-	cfa_url: string;
-	vetstreet_url: string;
-	vcahospitals_url: string;
+	cfa_url?: string;
+	vetstreet_url?: string;
+	vcahospitals_url?: string;
 	temperament: string;
 	origin: string;
 	country_codes: string;
@@ -14,8 +26,8 @@ interface CatModel {
 	description: string;
 	life_span: string;
 	indoor: number;
-	lap: number;
-	alt_names: string;
+	lap?: number;
+	alt_names?: string;
 	adaptability: number;
 	affection_level: number;
 	child_friendly: number;
@@ -35,24 +47,25 @@ interface CatModel {
 	rex: number;
 	suppressed_tail: number;
 	short_legs: number;
-	wikipedia_url: string;
+	wikipedia_url?: string;
 	hypoallergenic: number;
-	reference_image_id: string;
-	image?: {
-		id: string;
-		width: number;
-		height: number;
-		url: string;
-	};
+	reference_image_id?: string;
+	image?: CatImage;
 }
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: '/',
+  baseUrl: 'https://api.thecatapi.com/v1',
+  prepareHeaders: (headers) => {
+    // You might need an API key for production use
+    // headers.set('x-api-key', 'YOUR_API_KEY_HERE');
+    return headers;
+  },
 });
 
 const baseQueryWithRetry = async (args: any, api: any, extraOptions: any) => {
   let result = await baseQuery(args, api, extraOptions);
   if (result.error) {
+    // Retry once after 1 second
     await new Promise((resolve) => setTimeout(resolve, 1000));
     result = await baseQuery(args, api, extraOptions);
   }
@@ -62,7 +75,11 @@ const baseQueryWithRetry = async (args: any, api: any, extraOptions: any) => {
 export const catsApi = createApi({
   reducerPath: 'catsApi',
   baseQuery: baseQueryWithRetry,
-  endpoints: (builder) => ({}),
+  endpoints: (builder) => ({
+    getCatBreeds: builder.query<CatBreed[], void>({
+      query: () => '/breeds',
+    }),
+  }),
 });
 
-export const {} = catsApi;
+export const { useGetCatBreedsQuery } = catsApi;

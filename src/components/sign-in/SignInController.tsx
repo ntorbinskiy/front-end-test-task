@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router';
 
 import { SignInCredentials, SignInErrors, validateSignInCredentials } from './sign-in-model';
 import { useAppDispatch, useAppSelector } from '../../store/store.tsx';
-import { loginFailure, loginStart, loginSuccess } from '../../store/slices/authSlice.tsx';
+import { loginFailure, loginStart, loginSuccess } from '../../store/slices/auth-slice.tsx';
 import { SignInView } from './SignInView.tsx';
 
 export interface SignInViewProps {
