@@ -16,10 +16,10 @@ export const CatCard: React.FC<CatCardProps> = ({ cat }): JSX.Element => {
         <h3 className="text-xl font-semibold text-gray-800 mb-2">
           {cat.name}
         </h3>
-        <span className="block mb-1 text-xs font-semibold uppercase text-blue-600">
+        <span className="block mb-4 text-xs font-semibold uppercase text-blue-600">
           Origin: {cat.origin || 'Unknown'}
         </span>
-        <p className="mt-3 text-gray-500 line-clamp-3">
+        <p className="text-gray-500 line-clamp-3">
           {cat.description || 'No description available'}
         </p>
 

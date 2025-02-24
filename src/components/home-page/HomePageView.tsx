@@ -1,32 +1,16 @@
 import React, { JSX } from 'react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line,
-
-} from 'recharts';
 import { HomePageViewProps } from './HomePageController';
-import { FilterOption, SortOption } from './home-model';
-import { RechartsContainer } from './components/RechartsContainer.tsx';
-import { CatCardGrid } from './components/cat-card-grid/CatCardGrid.tsx';
+
+import { CatCardGrid } from './components/cat-card-grid/CatCardGrid';
+import { BarChartComponent } from './components/charts/BarChartComponent';
+import { PieChartComponent } from './components/charts/PieChartComponent';
+import { LineChartComponent } from './components/charts/LineChartComponent';
 
 export const HomePageView: React.FC<HomePageViewProps> = ({
   isLoading,
   error,
   processedCats,
-  filters,
   chartData,
-  dropdownState,
-  handlers,
   colors,
 }): JSX.Element => {
 
@@ -46,93 +30,6 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
     );
   }
 
-  const renderFilterOptions = (): JSX.Element => {
-    const options: { value: FilterOption; label: string }[] = [
-      { value: 'all', label: 'All Cats' },
-      { value: 'indoor', label: 'Indoor Cats' },
-      { value: 'lap', label: 'Lap Cats' },
-      { value: 'hypoallergenic', label: 'Hypoallergenic' },
-      { value: 'natural', label: 'Natural Breeds' },
-      { value: 'rare', label: 'Rare Breeds' },
-    ];
-
-    return (
-      <div className="relative">
-        <button
-          type="button"
-          className="py-2 px-3 w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 flex justify-between items-center"
-          onClick={handlers.toggleFilterDropdown}
-        >
-          <span>{options.find((option) => option.value === filters.filterBy)?.label}</span>
-          <span className="ml-2">{dropdownState.isFilterDropdownOpen ? '▲' : '▼'}</span>
-        </button>
-        {dropdownState.isFilterDropdownOpen && (
-          <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
-            {options.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${
-                  filters.filterBy === option.value ? 'bg-blue-50 text-blue-600' : ''
-                }`}
-                onClick={() => handlers.handleFilterChange(option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderSortOptions = (): JSX.Element => {
-    const options: { value: SortOption; label: string }[] = [
-      { value: 'name', label: 'Name' },
-      { value: 'origin', label: 'Origin' },
-      { value: 'adaptability', label: 'Adaptability' },
-      { value: 'affection_level', label: 'Affection Level' },
-      { value: 'intelligence', label: 'Intelligence' },
-    ];
-
-    return (
-      <div className="relative">
-        <div className="flex">
-          <button
-            type="button"
-            className="py-2 px-3 flex-grow border border-gray-300 rounded-l-md shadow-sm focus:ring-blue-500 focus:border-blue-500 flex justify-between items-center"
-            onClick={handlers.toggleSortDropdown}
-          >
-            <span>{options.find((option) => option.value === filters.sortBy)?.label}</span>
-            <span className="ml-2">{dropdownState.isSortDropdownOpen ? '▲' : '▼'}</span>
-          </button>
-          <button
-            className="py-2 px-3 border border-gray-300 rounded-r-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            onClick={() => handlers.handleSortChange(filters.sortBy)}
-          >
-            {filters.sortDirection === 'asc' ? '↑' : '↓'}
-          </button>
-        </div>
-        {dropdownState.isSortDropdownOpen && (
-          <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
-            {options.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${
-                  filters.sortBy === option.value ? 'bg-blue-50 text-blue-600' : ''
-                }`}
-                onClick={() => handlers.handleSortChange(option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Cat Breeds Statistics</h1>
@@ -140,145 +37,46 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
       {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Adaptability Chart */}
-        <RechartsContainer title="Adaptability Distribution">
-          <BarChart data={chartData.adaptabilityData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="value" fill={colors[0]} />
-          </BarChart>
-        </RechartsContainer>
+        <BarChartComponent
+          title="Adaptability Distribution"
+          data={chartData.adaptabilityData}
+          fill={colors[0]}
+        />
 
         {/* Affection Levels */}
-        <RechartsContainer title="Affection Levels">
-          <BarChart data={chartData.affectionData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="value" fill={colors[1]} />
-          </BarChart>
-        </RechartsContainer>
+        <BarChartComponent
+          title="Affection Levels"
+          data={chartData.affectionData}
+          fill={colors[1]}
+        />
 
         {/* Top Origins */}
-        <RechartsContainer title="Top Origins">
-          <PieChart>
-            <Pie
-              data={chartData.originData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-              label
-            >
-              {chartData.originData.map((_, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={colors[index % colors.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </RechartsContainer>
+        <PieChartComponent
+          title="Top Origins"
+          data={chartData.originData}
+          colors={colors}
+        />
 
         {/* Indoor vs Outdoor Chart */}
-        <RechartsContainer title="Indoor vs Outdoor Preference">
-          <PieChart>
-            <Pie
-              data={chartData.indoorData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-              label
-            >
-              {chartData.indoorData.map((_, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={colors[index % colors.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </RechartsContainer>
+        <PieChartComponent
+          title="Indoor vs Outdoor Preference"
+          data={chartData.indoorData}
+          colors={colors}
+        />
 
         {/* Lap Cat Distribution */}
-        <RechartsContainer title="Lap Cat Distribution">
-          <PieChart>
-            <Pie
-              data={chartData.lapData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              outerRadius={100}
-              label
-            >
-              {chartData.lapData.map((_, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={colors[index % colors.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </RechartsContainer>
+        <PieChartComponent
+          title="Lap Cat Distribution"
+          data={chartData.lapData}
+          colors={colors}
+        />
 
         {/* Life Span Distribution */}
-        <RechartsContainer title="Life Span Distribution">
-          <LineChart data={chartData.lifeSpanData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Line type="monotone" dataKey="years" stroke={colors[4]} />
-          </LineChart>
-        </RechartsContainer>
-      </div>
-
-      {/* Filter and Sort Controls */}
-      <div className="bg-white p-4 rounded-xl shadow-sm my-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Search */}
-          <div>
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
-                Search
-            </label>
-            <input
-              type="text"
-              id="search"
-              className="py-2 px-3 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Search cat breeds..."
-              value={filters.searchTerm}
-              onChange={(e) => handlers.handleSearchChange(e.target.value)}
-            />
-          </div>
-
-          {/* Filter */}
-          <div>
-            <label htmlFor="filter" className="block text-sm font-medium text-gray-700 mb-1">
-                Filter By
-            </label>
-            {renderFilterOptions()}
-          </div>
-
-          {/* Sort */}
-          <div>
-            <label htmlFor="sort" className="block text-sm font-medium text-gray-700 mb-1">
-                Sort By
-            </label>
-            {renderSortOptions()}
-          </div>
-        </div>
+        <LineChartComponent
+          title="Life Span Distribution"
+          data={chartData.lifeSpanData}
+          stroke={colors[4]}
+        />
       </div>
 
       <CatCardGrid cats={processedCats} />
