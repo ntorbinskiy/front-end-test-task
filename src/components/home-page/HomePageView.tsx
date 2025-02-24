@@ -7,16 +7,36 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
   LineChart,
-  Line,
+  Line, ResponsiveContainer,
 } from 'recharts';
 import { HomePageViewProps } from './HomePageController';
 import { FilterOption, SortOption } from './home-model';
 import { ProgressBar } from './components/ProgressBar';
+
+interface RechartsContainerProps {
+  children: JSX.Element;
+  title: string;
+}
+
+export const RechartsContainer: React.FC<RechartsContainerProps> = ({
+  children,
+  title,
+}): JSX.Element => {
+  return (
+    <div className="bg-white p-4 rounded-xl shadow-sm">
+      <h2 className="text-xl font-semibold mb-4">{title}</h2>
+      <div className="h-[350px]">
+        <ResponsiveContainer>
+          {children}
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
+};
 
 export const HomePageView: React.FC<HomePageViewProps> = ({
   isLoading,
@@ -28,7 +48,7 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
   handlers,
   colors,
 }): JSX.Element => {
-  // Show loading state
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -40,7 +60,7 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
   if (error) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-red-500">Error loading cats data: {(error as any).message || 'An unknown error occurred'}</div>
+        <div className="text-red-500">Error loading cats data: 'An unknown error occurred'</div>
       </div>
     );
   }
@@ -157,142 +177,109 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
       {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Adaptability Chart */}
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">
-              Adaptability Distribution
-          </h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer>
-              <BarChart data={chartData.adaptabilityData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="value" fill={colors[0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <RechartsContainer title="Adaptability Distribution">
+          <BarChart data={chartData.adaptabilityData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="value" fill={colors[0]} />
+          </BarChart>
+        </RechartsContainer>
 
         {/* Affection Levels */}
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Affection Levels</h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer>
-              <BarChart data={chartData.affectionData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="value" fill={colors[1]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <RechartsContainer title="Affection Levels">
+          <BarChart data={chartData.affectionData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Bar dataKey="value" fill={colors[1]} />
+          </BarChart>
+        </RechartsContainer>
 
         {/* Top Origins */}
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Top Origins</h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie
-                  data={chartData.originData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {chartData.originData.map((_, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={colors[index % colors.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <RechartsContainer title="Top Origins">
+          <PieChart>
+            <Pie
+              data={chartData.originData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              label
+            >
+              {chartData.originData.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={colors[index % colors.length]}
+                />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </RechartsContainer>
 
         {/* Indoor vs Outdoor Chart */}
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">
-              Indoor vs Outdoor Preference
-          </h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie
-                  data={chartData.indoorData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {chartData.indoorData.map((_, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={colors[index % colors.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <RechartsContainer title="Indoor vs Outdoor Preference">
+          <PieChart>
+            <Pie
+              data={chartData.indoorData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              label
+            >
+              {chartData.indoorData.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={colors[index % colors.length]}
+                />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </RechartsContainer>
 
         {/* Lap Cat Distribution */}
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Lap Cat Distribution</h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie
-                  data={chartData.lapData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {chartData.lapData.map((_, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={colors[index % colors.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <RechartsContainer title="Lap Cat Distribution">
+          <PieChart>
+            <Pie
+              data={chartData.lapData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={100}
+              label
+            >
+              {chartData.lapData.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={colors[index % colors.length]}
+                />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend />
+          </PieChart>
+        </RechartsContainer>
 
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Life Span Distribution</h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer>
-              <LineChart data={chartData.lifeSpanData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="years" stroke={colors[4]} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        {/* Life Span Distribution */}
+        <RechartsContainer title="Life Span Distribution">
+          <LineChart data={chartData.lifeSpanData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip />
+            <Line type="monotone" dataKey="years" stroke={colors[4]} />
+          </LineChart>
+        </RechartsContainer>
       </div>
 
       {/* Filter and Sort Controls */}

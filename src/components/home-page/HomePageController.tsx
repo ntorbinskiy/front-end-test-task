@@ -15,6 +15,8 @@ import {
 
 import type { CatBreed } from '../../services/cats-service';
 import { HomePageView } from './HomePageView';
+import { SerializedError } from '@reduxjs/toolkit';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 // Define chart color palette
 // eslint-disable-next-line react-refresh/only-export-components
@@ -33,7 +35,7 @@ export const COLORS: string[] = [
 
 export interface HomePageViewProps {
     isLoading: boolean;
-    error: any;
+    error:  FetchBaseQueryError | SerializedError | undefined;
     processedCats: CatBreed[];
     filters: HomeFilters;
     chartData: {
