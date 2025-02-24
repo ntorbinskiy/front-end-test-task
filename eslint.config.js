@@ -24,6 +24,12 @@ export default tseslint.config(
                 {allowConstantExport: true},
             ],
             "@typescript-eslint/no-explicit-any": "off",
+            // Allow unused variables starting with underscore
+            "@typescript-eslint/no-unused-vars": ["error", {
+                "argsIgnorePattern": "^_",
+                "varsIgnorePattern": "^_",
+                "caughtErrorsIgnorePattern": "^_"
+            }],
             // Formatting rules
             "indent": ["error", 2],
             "quotes": ["error", "single"],
