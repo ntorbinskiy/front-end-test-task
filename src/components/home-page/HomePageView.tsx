@@ -11,32 +11,13 @@ import {
   Pie,
   Cell,
   LineChart,
-  Line, ResponsiveContainer,
+  Line,
+
 } from 'recharts';
 import { HomePageViewProps } from './HomePageController';
 import { FilterOption, SortOption } from './home-model';
-import { ProgressBar } from './components/ProgressBar';
-
-interface RechartsContainerProps {
-  children: JSX.Element;
-  title: string;
-}
-
-export const RechartsContainer: React.FC<RechartsContainerProps> = ({
-  children,
-  title,
-}): JSX.Element => {
-  return (
-    <div className="bg-white p-4 rounded-xl shadow-sm">
-      <h2 className="text-xl font-semibold mb-4">{title}</h2>
-      <div className="h-[350px]">
-        <ResponsiveContainer>
-          {children}
-        </ResponsiveContainer>
-      </div>
-    </div>
-  );
-};
+import { RechartsContainer } from './components/RechartsContainer.tsx';
+import { CatCardGrid } from './components/cat-card-grid/CatCardGrid.tsx';
 
 export const HomePageView: React.FC<HomePageViewProps> = ({
   isLoading,
@@ -150,24 +131,6 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
         )}
       </div>
     );
-  };
-
-  // Function to render attribute progress bars with different colors
-  const getColorForAttribute = (attribute: string): string => {
-    switch (attribute) {
-    case 'adaptability':
-      return 'bg-blue-600';
-    case 'affection_level':
-      return 'bg-pink-500';
-    case 'intelligence':
-      return 'bg-purple-500';
-    case 'energy_level':
-      return 'bg-orange-500';
-    case 'child_friendly':
-      return 'bg-green-500';
-    default:
-      return 'bg-blue-600';
-    }
   };
 
   return (
@@ -318,61 +281,7 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
         </div>
       </div>
 
-      {/* Cats Grid */}
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold mb-4">Cat Breeds ({processedCats.length})</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {processedCats.map((cat) => (
-            <div
-              key={cat.id}
-              className="group flex flex-col h-full bg-white border border-gray-200 shadow-sm rounded-xl hover:shadow-md transition-shadow">
-              <div className="p-4 md:p-6">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  {cat.name}
-                </h3>
-                <span className="block mb-1 text-xs font-semibold uppercase text-blue-600">
-                  Origin: {cat.origin || 'Unknown'}
-                </span>
-                <p className="mt-3 text-gray-500 line-clamp-3">
-                  {cat.description || 'No description available'}
-                </p>
-
-                <div className="mt-4 space-y-3">
-                  {/* Adaptability Progress Bar */}
-                  <ProgressBar
-                    label="Adaptability"
-                    value={cat.adaptability}
-                    maxValue={5}
-                    colorClass={getColorForAttribute('adaptability')}
-                  />
-
-                  {/* Affection Level Progress Bar */}
-                  <ProgressBar
-                    label="Affection Level"
-                    value={cat.affection_level}
-                    maxValue={5}
-                    colorClass={getColorForAttribute('affection_level')}
-                  />
-
-                  {/* Intelligence Progress Bar */}
-                  <ProgressBar
-                    label="Intelligence"
-                    value={cat.intelligence}
-                    maxValue={5}
-                    colorClass={getColorForAttribute('intelligence')}
-                  />
-
-                  {/* Life Span text only */}
-                  <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-700">Life Span:</span>
-                    <span className="text-sm font-medium text-gray-700">{cat.life_span} years</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <CatCardGrid cats={processedCats} />
     </div>
   );
 };
