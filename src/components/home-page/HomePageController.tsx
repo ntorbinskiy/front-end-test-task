@@ -14,7 +14,7 @@ import {
 } from './home-model';
 
 import type { CatBreed } from '../../services/cats-service';
-import { HomePageView } from './HomePageView.tsx';
+import { HomePageView } from './HomePageView';
 
 // Define chart color palette
 // eslint-disable-next-line react-refresh/only-export-components
@@ -73,13 +73,13 @@ export const HomePageController: React.FC = () => {
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState<boolean>(false);
 
-  // Combined filters state for processing
-  const filters: HomeFilters = {
+  // Combined filters state for processing - wrapped in useMemo to prevent unnecessary re-renders
+  const filters = useMemo<HomeFilters>(() => ({
     sortBy,
     sortDirection,
     filterBy,
     searchTerm,
-  };
+  }), [sortBy, sortDirection, filterBy, searchTerm]);
 
   // Process the data based on sort, filter, and search options
   const processedCats = useMemo(() =>
