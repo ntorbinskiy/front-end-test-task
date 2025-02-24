@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 interface CatModel {
 	weight: { imperial: string; metric: string };
@@ -47,22 +47,22 @@ interface CatModel {
 }
 
 const baseQuery = fetchBaseQuery({
-	baseUrl: "/",
+  baseUrl: '/',
 });
 
 const baseQueryWithRetry = async (args: any, api: any, extraOptions: any) => {
-	let result = await baseQuery(args, api, extraOptions);
-	if (result.error) {
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-		result = await baseQuery(args, api, extraOptions);
-	}
-	return result;
+  let result = await baseQuery(args, api, extraOptions);
+  if (result.error) {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    result = await baseQuery(args, api, extraOptions);
+  }
+  return result;
 };
 
 export const catsApi = createApi({
-	reducerPath: "catsApi",
-	baseQuery: baseQueryWithRetry,
-	endpoints: (builder) => ({}),
+  reducerPath: 'catsApi',
+  baseQuery: baseQueryWithRetry,
+  endpoints: (builder) => ({}),
 });
 
 export const {} = catsApi;
