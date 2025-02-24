@@ -1,10 +1,6 @@
 
 import { CatBreed } from '../../services/cats-service.ts';
 
-export type SortOption = 'name' | 'origin' | 'adaptability' | 'affection_level' | 'intelligence';
-export type FilterOption = 'all' | 'indoor' | 'lap' | 'hypoallergenic' | 'natural' | 'rare';
-export type SortDirection = 'asc' | 'desc';
-
 export interface ChartDataItem {
     name: string;
     value: number;
@@ -15,13 +11,6 @@ export interface LifeSpanDataItem {
     years: number;
 }
 
-export interface HomeFilters {
-    sortBy: SortOption;
-    sortDirection: SortDirection;
-    filterBy: FilterOption;
-    searchTerm: string;
-}
-
 export interface ChartsData {
     adaptabilityData: ChartDataItem[];
     affectionData: ChartDataItem[];
@@ -30,52 +19,6 @@ export interface ChartsData {
     lapData: ChartDataItem[];
     lifeSpanData: LifeSpanDataItem[];
 }
-
-export const processData = (
-  cats: CatBreed[],
-  filters: HomeFilters,
-): CatBreed[] => {
-  if (!cats.length) return [];
-
-  // Filter cats
-  let filteredCats = [...cats];
-
-  if (filters.searchTerm) {
-    filteredCats = filteredCats.filter((cat) =>
-      cat.name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-            cat.origin?.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-            cat.description.toLowerCase().includes(filters.searchTerm.toLowerCase()),
-    );
-  }
-
-  if (filters.filterBy === 'indoor') {
-    filteredCats = filteredCats.filter((cat) => cat.indoor === 1);
-  } else if (filters.filterBy === 'lap') {
-    filteredCats = filteredCats.filter((cat) => cat.lap === 1);
-  } else if (filters.filterBy === 'hypoallergenic') {
-    filteredCats = filteredCats.filter((cat) => cat.hypoallergenic === 1);
-  } else if (filters.filterBy === 'natural') {
-    filteredCats = filteredCats.filter((cat) => cat.natural === 1);
-  } else if (filters.filterBy === 'rare') {
-    filteredCats = filteredCats.filter((cat) => cat.rare === 1);
-  }
-
-  // Create a new array for sorting to avoid mutating the filtered array
-  return [...filteredCats].sort((a, b) => {
-    let comparison = 0;
-
-    if (filters.sortBy === 'name') {
-      comparison = a.name.localeCompare(b.name);
-    } else if (filters.sortBy === 'origin') {
-      comparison = (a.origin || '').localeCompare(b.origin || '');
-    } else {
-      // For numeric properties
-      comparison = (a[filters.sortBy] || 0) - (b[filters.sortBy] || 0);
-    }
-
-    return filters.sortDirection === 'asc' ? comparison : -comparison;
-  });
-};
 
 /**
  * Prepare chart data from cat breeds

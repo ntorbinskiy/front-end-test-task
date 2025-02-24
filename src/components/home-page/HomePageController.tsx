@@ -1,15 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, {  useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { useAppSelector } from '../../store/store';
 import { useGetCatBreedsQuery } from '../../services/cats-service';
 import {
-  SortOption,
-  FilterOption,
-  SortDirection,
-  HomeFilters,
   ChartDataItem,
   LifeSpanDataItem,
-  processData,
   prepareChartsData,
 } from './home-model';
 
@@ -37,7 +32,6 @@ export interface HomePageViewProps {
     isLoading: boolean;
     error:  FetchBaseQueryError | SerializedError | undefined;
     processedCats: CatBreed[];
-    filters: HomeFilters;
     chartData: {
         adaptabilityData: ChartDataItem[];
         affectionData: ChartDataItem[];
@@ -45,17 +39,6 @@ export interface HomePageViewProps {
         indoorData: ChartDataItem[];
         lapData: ChartDataItem[];
         lifeSpanData: LifeSpanDataItem[];
-    };
-    dropdownState: {
-        isFilterDropdownOpen: boolean;
-        isSortDropdownOpen: boolean;
-    };
-    handlers: {
-        handleSortChange: (option: SortOption) => void;
-        handleFilterChange: (option: FilterOption) => void;
-        handleSearchChange: (value: string) => void;
-        toggleFilterDropdown: () => void;
-        toggleSortDropdown: () => void;
     };
     colors: typeof COLORS;
 }
@@ -67,29 +50,6 @@ export const HomePageController: React.FC = () => {
   // RTK Query hook for fetching data
   const { data: cats = [], isLoading, error } = useGetCatBreedsQuery();
 
-  // State for sorting and filtering
-  const [sortBy, setSortBy] = useState<SortOption>('name');
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
-  const [filterBy, setFilterBy] = useState<FilterOption>('all');
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
-  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState<boolean>(false);
-
-  // Combined filters state for processing - wrapped in useMemo to prevent unnecessary re-renders
-  const filters = useMemo<HomeFilters>(() => ({
-    sortBy,
-    sortDirection,
-    filterBy,
-    searchTerm,
-  }), [sortBy, sortDirection, filterBy, searchTerm]);
-
-  // Process the data based on sort, filter, and search options
-  const processedCats = useMemo(() =>
-    processData(cats, filters),
-  [cats, filters],
-  );
-
-  // Prepare chart data
   const chartData = useMemo(() =>
     prepareChartsData(cats),
   [cats],
@@ -102,56 +62,11 @@ export const HomePageController: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Toggle sort direction
-  const handleSortChange = (option: SortOption): void => {
-    if (sortBy === option) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(option);
-      setSortDirection('asc');
-    }
-    setIsSortDropdownOpen(false);
-  };
-
-  // Handle filter change
-  const handleFilterChange = (option: FilterOption): void => {
-    setFilterBy(option);
-    setIsFilterDropdownOpen(false);
-  };
-
-  // Handle search change
-  const handleSearchChange = (value: string): void => {
-    setSearchTerm(value);
-  };
-
-  // Toggle dropdown states
-  const toggleFilterDropdown = (): void => {
-    setIsFilterDropdownOpen(!isFilterDropdownOpen);
-    if (isSortDropdownOpen) setIsSortDropdownOpen(false);
-  };
-
-  const toggleSortDropdown = (): void => {
-    setIsSortDropdownOpen(!isSortDropdownOpen);
-    if (isFilterDropdownOpen) setIsFilterDropdownOpen(false);
-  };
-
   const viewProps: HomePageViewProps = {
     isLoading,
     error,
-    processedCats,
-    filters,
+    processedCats: [],
     chartData,
-    dropdownState: {
-      isFilterDropdownOpen,
-      isSortDropdownOpen,
-    },
-    handlers: {
-      handleSortChange,
-      handleFilterChange,
-      handleSearchChange,
-      toggleFilterDropdown,
-      toggleSortDropdown,
-    },
     colors: COLORS,
   };
 
