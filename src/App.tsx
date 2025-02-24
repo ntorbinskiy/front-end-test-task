@@ -1,5 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router';
-import HomePage from './app/home';
+import { HomePage } from './app/home';
 import StoreProvider from './components/StoreProvider';
 import UIProvider from './components/UIProvider';
 import { SignInPage } from './app/signIn';
