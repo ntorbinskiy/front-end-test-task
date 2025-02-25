@@ -48,7 +48,7 @@ export const processData = (
         result = (a.origin || '').localeCompare(b.origin || '');
         break;
       default:
-        // For numeric properties
+
         result = (a[sortBy] || 0) - (b[sortBy] || 0);
       }
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { ValidationError } from './ValidationError';
 
 interface PasswordInputProps {
     id: string;
@@ -77,9 +78,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
           </svg>
         </button>
       </div>
-      {error && (
-        <p className="mt-2 text-sm text-red-600" id={`${id}-error`}>{error}</p>
-      )}
+      <ValidationError error={error} id={id} />
     </div>
   );
 };
