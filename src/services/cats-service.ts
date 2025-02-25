@@ -56,8 +56,7 @@ export interface CatBreed {
 const baseQuery = fetchBaseQuery({
   baseUrl: 'https://api.thecatapi.com/v1',
   prepareHeaders: (headers) => {
-    // You might need an API key for production use
-    // headers.set('x-api-key', 'YOUR_API_KEY_HERE');
+
     return headers;
   },
 });
