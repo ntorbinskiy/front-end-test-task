@@ -54,6 +54,6 @@ export const validateSignInCredentials = (credentials: SignInCredentials): SignI
   return {
     email: emailValidation.error,
     password: passwordValidation.error,
-    general: hasGeneralError ? 'Invalid email or password' : null,
+    general: hasGeneralError ? 'User not found' : null,
   };
 };

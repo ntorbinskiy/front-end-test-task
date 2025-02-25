@@ -90,8 +90,8 @@ export const SignInController: React.FC = () => {
           role: 'user',
         }));
       } else {
-        dispatch(loginFailure('Invalid email or password'));
-        setErrors((prev) => ({ ...prev, general: 'Invalid email or password' }));
+        dispatch(loginFailure('User not found'));
+        setErrors((prev) => ({ ...prev, general: 'User not found' }));
       }
 
     } catch {
