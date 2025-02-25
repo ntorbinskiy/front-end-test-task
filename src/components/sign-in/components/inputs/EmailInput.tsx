@@ -1,4 +1,5 @@
 import React from 'react';
+import { ValidationError } from './ValidationError';
 
 interface EmailInputProps {
     id: string;
@@ -49,9 +50,7 @@ export const EmailInput: React.FC<EmailInputProps> = ({
         aria-invalid={error ? 'true' : 'false'}
         aria-describedby={error ? `${id}-error` : undefined}
       />
-      {error && (
-        <p className="mt-2 text-sm text-red-600" id={`${id}-error`}>{error}</p>
-      )}
+      <ValidationError error={error} id={id} />
     </div>
   );
 };

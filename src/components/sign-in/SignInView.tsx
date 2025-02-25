@@ -1,10 +1,10 @@
 import React, { JSX } from 'react';
 import { SignInViewProps } from './SignInController';
 import { FormContainer } from './components/FormContainer.tsx';
-import { PasswordInput } from './components/PasswordInput.tsx';
+import { PasswordInput } from './components/inputs/PasswordInput.tsx';
 import { Alert } from './components/Alert.tsx';
 import { Button } from './components/Button.tsx';
-import { EmailInput } from './components/EmailInput.tsx';
+import { EmailInput } from './components/inputs/EmailInput.tsx';
 
 export const SignInView: React.FC<SignInViewProps> = ({
   credentials,
