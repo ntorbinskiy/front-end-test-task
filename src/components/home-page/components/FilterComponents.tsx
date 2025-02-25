@@ -164,7 +164,7 @@ export const SortComponent: React.FC<SortComponentProps> = ({
         </div>
         <button
           type="button"
-          className={`min-w-10 h-[42px] py-2.5 px-3 inline-flex justify-center items-center text-sm font-medium rounded-lg border ${
+          className={`cursor-pointer min-w-10 h-[42px] py-2.5 px-3 inline-flex justify-center items-center text-sm font-medium rounded-lg border ${
             darkMode
               ? 'bg-gray-800 border-gray-700 text-gray-200 hover:bg-gray-700'
               : 'bg-white border-gray-200 text-gray-800 hover:bg-gray-50'
