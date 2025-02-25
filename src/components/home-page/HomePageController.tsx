@@ -16,19 +16,7 @@ import type { CatBreed } from '../../services/cats-service';
 import { HomePageView } from './HomePageView';
 import { SerializedError } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
-
-export const COLORS: string[] = [
-  '#0088FE',
-  '#00C49F',
-  '#FFBB28',
-  '#FF8042',
-  '#8884d8',
-  '#82ca9d',
-  '#ffc658',
-  '#8dd1e1',
-  '#a4de6c',
-  '#d0ed57',
-];
+import { COLORS } from './constants.ts';
 
 export interface HomePageViewProps {
     isLoading: boolean;

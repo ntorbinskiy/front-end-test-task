@@ -8,28 +8,6 @@ interface ProgressBarProps {
     colorClass?: string;
 }
 
-export type CatAttribute =
-    | 'adaptability'
-    | 'affection_level'
-    | 'intelligence'
-    | 'energy_level'
-    | 'child_friendly';
-
-export type ColorClass =
-    | 'bg-blue-600'
-    | 'bg-pink-500'
-    | 'bg-purple-500'
-    | 'bg-orange-500'
-    | 'bg-green-500';
-
-export const ATTRIBUTE_COLOR_MAP: Record<CatAttribute, ColorClass> = {
-  adaptability: 'bg-blue-600',
-  affection_level: 'bg-pink-500',
-  intelligence: 'bg-purple-500',
-  energy_level: 'bg-orange-500',
-  child_friendly: 'bg-green-500',
-};
-
 export const ProgressBar: React.FC<ProgressBarProps> = ({
   value,
   maxValue,

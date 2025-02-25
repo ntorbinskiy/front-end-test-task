@@ -1,7 +1,8 @@
 import React, { JSX } from 'react';
 
 import { CatBreed } from '../../../../services/cats-service.ts';
-import { ATTRIBUTE_COLOR_MAP, ProgressBar } from '../ProgressBar.tsx';
+import {  ProgressBar } from '../ProgressBar.tsx';
+import { ATTRIBUTE_COLOR_MAP } from '../../constants.ts';
 
 export interface CatCardProps {
     cat: CatBreed;
