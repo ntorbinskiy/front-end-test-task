@@ -1,20 +1,22 @@
-import React, { JSX } from 'react';
+import React from 'react';
 import { HomePageViewProps } from './HomePageController';
 import { CatCardGrid } from './components/cat-card-grid/CatCardGrid';
 import { BarChartComponent } from './components/charts/BarChartComponent';
 import { PieChartComponent } from './components/charts/PieChartComponent';
 import { LineChartComponent } from './components/charts/LineChartComponent';
 import { FilterBar } from './components/FilterComponents';
+import { Pagination } from './components/Pagination';
 
 export const HomePageView: React.FC<HomePageViewProps> = ({
   isLoading,
   error,
-  processedCats,
+  currentCats,
   chartData,
   colors,
   filters,
+  pagination,
   handlers,
-}): JSX.Element => {
+}) => {
 
   if (isLoading) {
     return (
@@ -36,44 +38,38 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Cat Breeds Statistics</h1>
 
-      {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Adaptability Chart */}
+
         <BarChartComponent
           title="Adaptability Distribution"
           data={chartData.adaptabilityData}
           fill={colors[0]}
         />
 
-        {/* Affection Levels */}
         <BarChartComponent
           title="Affection Levels"
           data={chartData.affectionData}
           fill={colors[1]}
         />
 
-        {/* Top Origins */}
         <PieChartComponent
           title="Top Origins"
           data={chartData.originData}
           colors={colors}
         />
 
-        {/* Indoor vs Outdoor Chart */}
         <PieChartComponent
           title="Indoor vs Outdoor Preference"
           data={chartData.indoorData}
           colors={colors}
         />
 
-        {/* Lap Cat Distribution */}
         <PieChartComponent
           title="Lap Cat Distribution"
           data={chartData.lapData}
           colors={colors}
         />
 
-        {/* Life Span Distribution */}
         <LineChartComponent
           title="Life Span Distribution"
           data={chartData.lifeSpanData}
@@ -81,7 +77,6 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
         />
       </div>
 
-      {/* Filter Bar */}
       <div className="my-8">
         <FilterBar
           searchTerm={filters.searchTerm}
@@ -92,11 +87,31 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
           onFilterChange={handlers.handleFilterChange}
           onSortChange={handlers.handleSortChange}
           onSortDirectionToggle={handlers.handleSortDirectionToggle}
-          darkMode={false} // Set to true for dark mode
+          darkMode={false}
         />
       </div>
 
-      <CatCardGrid cats={processedCats} />
+      <div id="cat-grid" className="mt-12">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">Cat Breeds ({pagination.totalItems})</h2>
+          {pagination.totalItems > 0 && (
+            <div className="text-sm text-gray-500">
+                  Showing {Math.min(pagination.currentPage * 9, pagination.totalItems) - Math.min((pagination.currentPage - 1) * 9, pagination.totalItems)} of {pagination.totalItems} breeds
+            </div>
+          )}
+        </div>
+
+        <CatCardGrid cats={currentCats} />
+
+        {pagination.totalPages > 1 && (
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            onPageChange={pagination.handlePageChange}
+            darkMode={false}
+          />
+        )}
+      </div>
     </div>
   );
 };

@@ -17,7 +17,6 @@ import { HomePageView } from './HomePageView';
 import { SerializedError } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
-// Define chart color palette
 export const COLORS: string[] = [
   '#0088FE',
   '#00C49F',
@@ -35,6 +34,7 @@ export interface HomePageViewProps {
     isLoading: boolean;
     error: FetchBaseQueryError | SerializedError | undefined;
     processedCats: CatBreed[];
+    currentCats: CatBreed[];
     chartData: {
         adaptabilityData: ChartDataItem[];
         affectionData: ChartDataItem[];
@@ -50,6 +50,12 @@ export interface HomePageViewProps {
         filterBy: FilterOption;
         searchTerm: string;
     };
+    pagination: {
+        currentPage: number;
+        totalPages: number;
+        totalItems: number;
+        handlePageChange: (page: number) => void;
+    };
     handlers: {
         handleSortChange: (option: SortOption) => void;
         handleSortDirectionToggle: () => void;
@@ -61,17 +67,14 @@ export interface HomePageViewProps {
 export const HomePageController: React.FC = () => {
   const navigate = useNavigate();
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-
-  // RTK Query hook for fetching data
   const { data: cats = [], isLoading, error } = useGetCatBreedsQuery();
-
-  // State for sorting and filtering
   const [sortBy, setSortBy] = useState<SortOption>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [filterBy, setFilterBy] = useState<FilterOption>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage] = useState<number>(9);
 
-  // Combined filters state for processing
   const filters = useMemo(() => ({
     sortBy,
     sortDirection,
@@ -79,39 +82,52 @@ export const HomePageController: React.FC = () => {
     searchTerm,
   }), [sortBy, sortDirection, filterBy, searchTerm]);
 
-  // Process the data based on sort, filter, and search options
   const processedCats = useMemo(() =>
     processData(cats, filters),
   [cats, filters]);
 
-  // Prepare chart data
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
+
+  const totalPages = Math.ceil(processedCats.length / itemsPerPage);
+
+  const currentCats = useMemo(() => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return processedCats.slice(indexOfFirstItem, indexOfLastItem);
+  }, [processedCats, currentPage, itemsPerPage]);
+
   const chartData = useMemo(() =>
     prepareChartsData(cats),
   [cats]);
 
-  // Effect to check authentication
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/sign-in');
     }
   }, [isAuthenticated, navigate]);
 
-  // Handle filter changes
+  const handlePageChange = (pageNumber: number): void => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({
+      top: document.getElementById('cat-grid')?.offsetTop || 0,
+      behavior: 'smooth',
+    });
+  };
+
   const handleFilterChange = (option: FilterOption): void => {
     setFilterBy(option);
   };
 
-  // Handle sort changes
   const handleSortChange = (option: SortOption): void => {
     setSortBy(option);
   };
 
-  // Toggle sort direction
   const handleSortDirectionToggle = (): void => {
     setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
   };
 
-  // Handle search changes
   const handleSearchChange = (value: string): void => {
     setSearchTerm(value);
   };
@@ -120,9 +136,16 @@ export const HomePageController: React.FC = () => {
     isLoading,
     error,
     processedCats,
+    currentCats,
     chartData,
     colors: COLORS,
     filters,
+    pagination: {
+      currentPage,
+      totalPages,
+      totalItems: processedCats.length,
+      handlePageChange,
+    },
     handlers: {
       handleSortChange,
       handleSortDirectionToggle,

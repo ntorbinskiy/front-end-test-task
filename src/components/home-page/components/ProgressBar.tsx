@@ -8,7 +8,6 @@ interface ProgressBarProps {
     colorClass?: string;
 }
 
-// Define attribute types as a union to ensure type safety
 export type CatAttribute =
     | 'adaptability'
     | 'affection_level'
@@ -16,7 +15,6 @@ export type CatAttribute =
     | 'energy_level'
     | 'child_friendly';
 
-// Define color classes as a union to ensure type safety
 export type ColorClass =
     | 'bg-blue-600'
     | 'bg-pink-500'
@@ -24,7 +22,6 @@ export type ColorClass =
     | 'bg-orange-500'
     | 'bg-green-500';
 
-// Create a record mapping from attribute to color class
 export const ATTRIBUTE_COLOR_MAP: Record<CatAttribute, ColorClass> = {
   adaptability: 'bg-blue-600',
   affection_level: 'bg-pink-500',

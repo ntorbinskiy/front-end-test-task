@@ -1,7 +1,7 @@
 import React, { JSX } from 'react';
 
 import { CatCard } from './CatCard';
-import { CatBreed } from '../../../../services/cats-service.ts';
+import { CatBreed } from '../../../../services/cats-service';
 
 export interface CatCardGridProps {
     cats: CatBreed[];
@@ -9,13 +9,16 @@ export interface CatCardGridProps {
 
 export const CatCardGrid: React.FC<CatCardGridProps> = ({ cats }): JSX.Element => {
   return (
-    <div className="mt-12">
-      <h2 className="text-2xl font-bold mb-4">Cat Breeds ({cats.length})</h2>
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {cats.map((cat) => (
-          <CatCard key={cat.id} cat={cat} />
-        ))}
-      </div>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {cats.map((cat) => (
+        <CatCard key={cat.id} cat={cat} />
+      ))}
+
+      {cats.length === 0 && (
+        <div className="col-span-3 text-center py-8 bg-gray-50 rounded-xl">
+          <p className="text-gray-500">No cats found matching your criteria. Try adjusting your filters.</p>
+        </div>
+      )}
     </div>
   );
 };
