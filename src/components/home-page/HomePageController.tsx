@@ -6,7 +6,6 @@ import {
   SortOption,
   FilterOption,
   SortDirection,
-  HomeFilters,
   ChartDataItem,
   LifeSpanDataItem,
   processData,
@@ -15,27 +14,15 @@ import {
 
 import type { CatBreed } from '../../services/cats-service';
 import { HomePageView } from './HomePageView';
-
-// Define chart color palette
-// eslint-disable-next-line react-refresh/only-export-components
-export const COLORS: string[] = [
-  '#0088FE',
-  '#00C49F',
-  '#FFBB28',
-  '#FF8042',
-  '#8884d8',
-  '#82ca9d',
-  '#ffc658',
-  '#8dd1e1',
-  '#a4de6c',
-  '#d0ed57',
-];
+import { SerializedError } from '@reduxjs/toolkit';
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
+import { COLORS } from './constants.ts';
 
 export interface HomePageViewProps {
     isLoading: boolean;
-    error: any;
+    error: FetchBaseQueryError | SerializedError | undefined;
     processedCats: CatBreed[];
-    filters: HomeFilters;
+    currentCats: CatBreed[];
     chartData: {
         adaptabilityData: ChartDataItem[];
         affectionData: ChartDataItem[];
@@ -44,113 +31,115 @@ export interface HomePageViewProps {
         lapData: ChartDataItem[];
         lifeSpanData: LifeSpanDataItem[];
     };
-    dropdownState: {
-        isFilterDropdownOpen: boolean;
-        isSortDropdownOpen: boolean;
+    colors: typeof COLORS;
+    filters: {
+        sortBy: SortOption;
+        sortDirection: SortDirection;
+        filterBy: FilterOption;
+        searchTerm: string;
+    };
+    pagination: {
+        currentPage: number;
+        totalPages: number;
+        totalItems: number;
+        handlePageChange: (page: number) => void;
     };
     handlers: {
         handleSortChange: (option: SortOption) => void;
+        handleSortDirectionToggle: () => void;
         handleFilterChange: (option: FilterOption) => void;
         handleSearchChange: (value: string) => void;
-        toggleFilterDropdown: () => void;
-        toggleSortDropdown: () => void;
     };
-    colors: typeof COLORS;
 }
 
 export const HomePageController: React.FC = () => {
   const navigate = useNavigate();
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-
-  // RTK Query hook for fetching data
   const { data: cats = [], isLoading, error } = useGetCatBreedsQuery();
-
-  // State for sorting and filtering
   const [sortBy, setSortBy] = useState<SortOption>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [filterBy, setFilterBy] = useState<FilterOption>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [isFilterDropdownOpen, setIsFilterDropdownOpen] = useState<boolean>(false);
-  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [itemsPerPage] = useState<number>(9);
 
-  // Combined filters state for processing - wrapped in useMemo to prevent unnecessary re-renders
-  const filters = useMemo<HomeFilters>(() => ({
+  const filters = useMemo(() => ({
     sortBy,
     sortDirection,
     filterBy,
     searchTerm,
   }), [sortBy, sortDirection, filterBy, searchTerm]);
 
-  // Process the data based on sort, filter, and search options
   const processedCats = useMemo(() =>
     processData(cats, filters),
-  [cats, filters],
-  );
+  [cats, filters]);
 
-  // Prepare chart data
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
+
+  const totalPages = Math.ceil(processedCats.length / itemsPerPage);
+
+  const currentCats = useMemo(() => {
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    return processedCats.slice(indexOfFirstItem, indexOfLastItem);
+  }, [processedCats, currentPage, itemsPerPage]);
+
   const chartData = useMemo(() =>
     prepareChartsData(cats),
-  [cats],
-  );
+  [cats]);
 
-  // Effect to check authentication
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/sign-in');
     }
   }, [isAuthenticated, navigate]);
 
-  // Toggle sort direction
-  const handleSortChange = (option: SortOption): void => {
-    if (sortBy === option) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(option);
-      setSortDirection('asc');
-    }
-    setIsSortDropdownOpen(false);
+  const handlePageChange = (pageNumber: number): void => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({
+      top: document.getElementById('cat-grid')?.offsetTop || 0,
+      behavior: 'smooth',
+    });
   };
 
-  // Handle filter change
   const handleFilterChange = (option: FilterOption): void => {
     setFilterBy(option);
-    setIsFilterDropdownOpen(false);
   };
 
-  // Handle search change
+  const handleSortChange = (option: SortOption): void => {
+    setSortBy(option);
+  };
+
+  const handleSortDirectionToggle = (): void => {
+    setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+  };
+
   const handleSearchChange = (value: string): void => {
     setSearchTerm(value);
-  };
-
-  // Toggle dropdown states
-  const toggleFilterDropdown = (): void => {
-    setIsFilterDropdownOpen(!isFilterDropdownOpen);
-    if (isSortDropdownOpen) setIsSortDropdownOpen(false);
-  };
-
-  const toggleSortDropdown = (): void => {
-    setIsSortDropdownOpen(!isSortDropdownOpen);
-    if (isFilterDropdownOpen) setIsFilterDropdownOpen(false);
   };
 
   const viewProps: HomePageViewProps = {
     isLoading,
     error,
     processedCats,
-    filters,
+    currentCats,
     chartData,
-    dropdownState: {
-      isFilterDropdownOpen,
-      isSortDropdownOpen,
+    colors: COLORS,
+    filters,
+    pagination: {
+      currentPage,
+      totalPages,
+      totalItems: processedCats.length,
+      handlePageChange,
     },
     handlers: {
       handleSortChange,
+      handleSortDirectionToggle,
       handleFilterChange,
       handleSearchChange,
-      toggleFilterDropdown,
-      toggleSortDropdown,
     },
-    colors: COLORS,
   };
 
   return <HomePageView {...viewProps} />;

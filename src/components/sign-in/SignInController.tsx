@@ -51,7 +51,6 @@ export const SignInController: React.FC = () => {
     const { name, value } = e.target;
     setCredentials((prev) => ({ ...prev, [name]: value }));
 
-    // Validate on change if field was touched
     if (touched[name as keyof typeof touched]) {
       const validationErrors = validateSignInCredentials({
         ...credentials,

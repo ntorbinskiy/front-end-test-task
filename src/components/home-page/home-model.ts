@@ -1,4 +1,3 @@
-
 import { CatBreed } from '../../services/cats-service.ts';
 
 export type SortOption = 'name' | 'origin' | 'adaptability' | 'affection_level' | 'intelligence';
@@ -37,49 +36,56 @@ export const processData = (
 ): CatBreed[] => {
   if (!cats.length) return [];
 
-  // Filter cats
-  let filteredCats = [...cats];
+  const getSortComparator = (sortBy: SortOption, direction: SortDirection) => {
+    return (a: CatBreed, b: CatBreed): number => {
+      let result: number;
+
+      switch (sortBy) {
+      case 'name':
+        result = a.name.localeCompare(b.name);
+        break;
+      case 'origin':
+        result = (a.origin || '').localeCompare(b.origin || '');
+        break;
+      default:
+        // For numeric properties
+        result = (a[sortBy] || 0) - (b[sortBy] || 0);
+      }
+
+      return direction === 'asc' ? result : -result;
+    };
+  };
+
+  const predicates: Array<(cat: CatBreed) => boolean> = [];
 
   if (filters.searchTerm) {
-    filteredCats = filteredCats.filter((cat) =>
-      cat.name.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-            cat.origin?.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-            cat.description.toLowerCase().includes(filters.searchTerm.toLowerCase()),
+    const searchTermLower = filters.searchTerm.toLowerCase();
+    predicates.push((cat) =>
+      cat.name.toLowerCase().includes(searchTermLower) ||
+            (cat.origin?.toLowerCase() || '').includes(searchTermLower) ||
+            cat.description.toLowerCase().includes(searchTermLower),
     );
   }
 
-  if (filters.filterBy === 'indoor') {
-    filteredCats = filteredCats.filter((cat) => cat.indoor === 1);
-  } else if (filters.filterBy === 'lap') {
-    filteredCats = filteredCats.filter((cat) => cat.lap === 1);
-  } else if (filters.filterBy === 'hypoallergenic') {
-    filteredCats = filteredCats.filter((cat) => cat.hypoallergenic === 1);
-  } else if (filters.filterBy === 'natural') {
-    filteredCats = filteredCats.filter((cat) => cat.natural === 1);
-  } else if (filters.filterBy === 'rare') {
-    filteredCats = filteredCats.filter((cat) => cat.rare === 1);
+  if (filters.filterBy !== 'all') {
+    const filterMap: Record<Exclude<FilterOption, 'all'>, (cat: CatBreed) => boolean> = {
+      'indoor': (cat) => cat.indoor === 1,
+      'lap': (cat) => cat.lap === 1,
+      'hypoallergenic': (cat) => cat.hypoallergenic === 1,
+      'natural': (cat) => cat.natural === 1,
+      'rare': (cat) => cat.rare === 1,
+    };
+
+    predicates.push(filterMap[filters.filterBy ]);
   }
 
-  // Create a new array for sorting to avoid mutating the filtered array
-  return [...filteredCats].sort((a, b) => {
-    let comparison = 0;
+  const filtered = predicates.length > 0
+    ? cats.filter((cat) => predicates.every((predicate) => predicate(cat)))
+    : [...cats];
 
-    if (filters.sortBy === 'name') {
-      comparison = a.name.localeCompare(b.name);
-    } else if (filters.sortBy === 'origin') {
-      comparison = (a.origin || '').localeCompare(b.origin || '');
-    } else {
-      // For numeric properties
-      comparison = (a[filters.sortBy] || 0) - (b[filters.sortBy] || 0);
-    }
-
-    return filters.sortDirection === 'asc' ? comparison : -comparison;
-  });
+  return filtered.sort(getSortComparator(filters.sortBy, filters.sortDirection));
 };
 
-/**
- * Prepare chart data from cat breeds
- */
 export const prepareChartsData = (cats: CatBreed[]): ChartsData => {
   if (!cats.length) {
     return {
@@ -92,7 +98,6 @@ export const prepareChartsData = (cats: CatBreed[]): ChartsData => {
     };
   }
 
-  // Prepare data for Adaptability chart (top 10 breeds)
   const adaptabilityData = [...cats]
     .sort((a, b) => b.adaptability - a.adaptability)
     .slice(0, 10)
@@ -101,7 +106,6 @@ export const prepareChartsData = (cats: CatBreed[]): ChartsData => {
       value: cat.adaptability,
     }));
 
-  // Prepare data for Affection chart (top 10 breeds)
   const affectionData = [...cats]
     .sort((a, b) => b.affection_level - a.affection_level)
     .slice(0, 10)
@@ -110,7 +114,6 @@ export const prepareChartsData = (cats: CatBreed[]): ChartsData => {
       value: cat.affection_level,
     }));
 
-  // Prepare data for Origins pie chart
   const origins = cats.reduce((acc: Record<string, number>, cat) => {
     const origin = cat.origin || 'Unknown';
     acc[origin] = (acc[origin] || 0) + 1;
@@ -120,9 +123,8 @@ export const prepareChartsData = (cats: CatBreed[]): ChartsData => {
   const originData = Object.entries(origins)
     .map(([name, value]) => ({ name, value }))
     .sort((a, b) => b.value - a.value)
-    .slice(0, 8); // Top 8 origins
+    .slice(0, 8);
 
-  // Prepare data for Indoor vs Outdoor chart
   const indoorCount = cats.reduce(
     (acc: { indoor: number; outdoor: number }, cat) => {
       if (cat.indoor === 1) {
@@ -140,7 +142,6 @@ export const prepareChartsData = (cats: CatBreed[]): ChartsData => {
     { name: 'Outdoor', value: indoorCount.outdoor },
   ];
 
-  // Prepare data for Lap Cat chart
   const lapCount = cats.reduce(
     (acc: { lap: number; notLap: number }, cat) => {
       if (cat.lap === 1) {
@@ -158,11 +159,10 @@ export const prepareChartsData = (cats: CatBreed[]): ChartsData => {
     { name: 'Not Lap Cat', value: lapCount.notLap },
   ];
 
-  // Prepare data for Life Span chart (top 10 longest living breeds)
   const lifeSpanData = cats
     .filter((cat) => cat.life_span)
     .map((cat) => {
-      // Extract max lifespan from ranges like "12 - 15"
+
       const lifeSpanParts = cat.life_span.split('-');
       const maxLifeSpan = lifeSpanParts.length > 1
         ? parseInt(lifeSpanParts[1].trim(), 10)

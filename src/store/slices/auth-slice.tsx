@@ -12,7 +12,7 @@ export interface AuthState {
   user: UserInfo | null;
   loading: boolean;
   error: string | null;
-  data: Record<string, any>;
+  data: Partial<UserInfo>;
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   userInfo: UserInfo;
 }

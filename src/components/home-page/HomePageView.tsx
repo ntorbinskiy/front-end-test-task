@@ -1,34 +1,23 @@
-import React, { JSX } from 'react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  LineChart,
-  Line,
-} from 'recharts';
+import React from 'react';
 import { HomePageViewProps } from './HomePageController';
-import { FilterOption, SortOption } from './home-model';
-import { ProgressBar } from './components/ProgressBar';
+import { CatCardGrid } from './components/cat-card-grid/CatCardGrid';
+import { BarChartComponent } from './components/charts/BarChartComponent';
+import { PieChartComponent } from './components/charts/PieChartComponent';
+import { LineChartComponent } from './components/charts/LineChartComponent';
+import { FilterBar } from './components/FilterComponents';
+import { Pagination } from './components/Pagination';
 
 export const HomePageView: React.FC<HomePageViewProps> = ({
   isLoading,
   error,
-  processedCats,
-  filters,
+  currentCats,
   chartData,
-  dropdownState,
-  handlers,
   colors,
-}): JSX.Element => {
-  // Show loading state
+  filters,
+  pagination,
+  handlers,
+}) => {
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -40,351 +29,88 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
   if (error) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="text-red-500">Error loading cats data: {(error as any).message || 'An unknown error occurred'}</div>
+        <div className="text-red-500">Error loading cats data: 'An unknown error occurred'</div>
       </div>
     );
   }
-
-  const renderFilterOptions = (): JSX.Element => {
-    const options: { value: FilterOption; label: string }[] = [
-      { value: 'all', label: 'All Cats' },
-      { value: 'indoor', label: 'Indoor Cats' },
-      { value: 'lap', label: 'Lap Cats' },
-      { value: 'hypoallergenic', label: 'Hypoallergenic' },
-      { value: 'natural', label: 'Natural Breeds' },
-      { value: 'rare', label: 'Rare Breeds' },
-    ];
-
-    return (
-      <div className="relative">
-        <button
-          type="button"
-          className="py-2 px-3 w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 flex justify-between items-center"
-          onClick={handlers.toggleFilterDropdown}
-        >
-          <span>{options.find((option) => option.value === filters.filterBy)?.label}</span>
-          <span className="ml-2">{dropdownState.isFilterDropdownOpen ? '▲' : '▼'}</span>
-        </button>
-        {dropdownState.isFilterDropdownOpen && (
-          <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
-            {options.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${
-                  filters.filterBy === option.value ? 'bg-blue-50 text-blue-600' : ''
-                }`}
-                onClick={() => handlers.handleFilterChange(option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  const renderSortOptions = (): JSX.Element => {
-    const options: { value: SortOption; label: string }[] = [
-      { value: 'name', label: 'Name' },
-      { value: 'origin', label: 'Origin' },
-      { value: 'adaptability', label: 'Adaptability' },
-      { value: 'affection_level', label: 'Affection Level' },
-      { value: 'intelligence', label: 'Intelligence' },
-    ];
-
-    return (
-      <div className="relative">
-        <div className="flex">
-          <button
-            type="button"
-            className="py-2 px-3 flex-grow border border-gray-300 rounded-l-md shadow-sm focus:ring-blue-500 focus:border-blue-500 flex justify-between items-center"
-            onClick={handlers.toggleSortDropdown}
-          >
-            <span>{options.find((option) => option.value === filters.sortBy)?.label}</span>
-            <span className="ml-2">{dropdownState.isSortDropdownOpen ? '▲' : '▼'}</span>
-          </button>
-          <button
-            className="py-2 px-3 border border-gray-300 rounded-r-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            onClick={() => handlers.handleSortChange(filters.sortBy)}
-          >
-            {filters.sortDirection === 'asc' ? '↑' : '↓'}
-          </button>
-        </div>
-        {dropdownState.isSortDropdownOpen && (
-          <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
-            {options.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className={`block w-full text-left px-4 py-2 hover:bg-gray-100 ${
-                  filters.sortBy === option.value ? 'bg-blue-50 text-blue-600' : ''
-                }`}
-                onClick={() => handlers.handleSortChange(option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  // Function to render attribute progress bars with different colors
-  const getColorForAttribute = (attribute: string): string => {
-    switch (attribute) {
-    case 'adaptability':
-      return 'bg-blue-600';
-    case 'affection_level':
-      return 'bg-pink-500';
-    case 'intelligence':
-      return 'bg-purple-500';
-    case 'energy_level':
-      return 'bg-orange-500';
-    case 'child_friendly':
-      return 'bg-green-500';
-    default:
-      return 'bg-blue-600';
-    }
-  };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold mb-8">Cat Breeds Statistics</h1>
 
-      {/* Charts Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Adaptability Chart */}
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">
-              Adaptability Distribution
-          </h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer>
-              <BarChart data={chartData.adaptabilityData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="value" fill={colors[0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
 
-        {/* Affection Levels */}
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Affection Levels</h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer>
-              <BarChart data={chartData.affectionData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="value" fill={colors[1]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <BarChartComponent
+          title="Adaptability Distribution"
+          data={chartData.adaptabilityData}
+          fill={colors[0]}
+        />
 
-        {/* Top Origins */}
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Top Origins</h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie
-                  data={chartData.originData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {chartData.originData.map((_, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={colors[index % colors.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <BarChartComponent
+          title="Affection Levels"
+          data={chartData.affectionData}
+          fill={colors[1]}
+        />
 
-        {/* Indoor vs Outdoor Chart */}
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">
-              Indoor vs Outdoor Preference
-          </h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie
-                  data={chartData.indoorData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {chartData.indoorData.map((_, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={colors[index % colors.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <PieChartComponent
+          title="Top Origins"
+          data={chartData.originData}
+          colors={colors}
+        />
 
-        {/* Lap Cat Distribution */}
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Lap Cat Distribution</h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie
-                  data={chartData.lapData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {chartData.lapData.map((_, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={colors[index % colors.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <PieChartComponent
+          title="Indoor vs Outdoor Preference"
+          data={chartData.indoorData}
+          colors={colors}
+        />
 
-        <div className="bg-white p-4 rounded-xl shadow-sm">
-          <h2 className="text-xl font-semibold mb-4">Life Span Distribution</h2>
-          <div className="h-[300px]">
-            <ResponsiveContainer>
-              <LineChart data={chartData.lifeSpanData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Line type="monotone" dataKey="years" stroke={colors[4]} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        <PieChartComponent
+          title="Lap Cat Distribution"
+          data={chartData.lapData}
+          colors={colors}
+        />
+
+        <LineChartComponent
+          title="Life Span Distribution"
+          data={chartData.lifeSpanData}
+          stroke={colors[4]}
+        />
       </div>
 
-      {/* Filter and Sort Controls */}
-      <div className="bg-white p-4 rounded-xl shadow-sm my-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Search */}
-          <div>
-            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
-                Search
-            </label>
-            <input
-              type="text"
-              id="search"
-              className="py-2 px-3 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Search cat breeds..."
-              value={filters.searchTerm}
-              onChange={(e) => handlers.handleSearchChange(e.target.value)}
-            />
-          </div>
-
-          {/* Filter */}
-          <div>
-            <label htmlFor="filter" className="block text-sm font-medium text-gray-700 mb-1">
-                Filter By
-            </label>
-            {renderFilterOptions()}
-          </div>
-
-          {/* Sort */}
-          <div>
-            <label htmlFor="sort" className="block text-sm font-medium text-gray-700 mb-1">
-                Sort By
-            </label>
-            {renderSortOptions()}
-          </div>
-        </div>
+      <div className="my-8">
+        <FilterBar
+          searchTerm={filters.searchTerm}
+          filterBy={filters.filterBy}
+          sortBy={filters.sortBy}
+          sortDirection={filters.sortDirection}
+          onSearchChange={handlers.handleSearchChange}
+          onFilterChange={handlers.handleFilterChange}
+          onSortChange={handlers.handleSortChange}
+          onSortDirectionToggle={handlers.handleSortDirectionToggle}
+          darkMode={false}
+        />
       </div>
 
-      {/* Cats Grid */}
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold mb-4">Cat Breeds ({processedCats.length})</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {processedCats.map((cat) => (
-            <div
-              key={cat.id}
-              className="group flex flex-col h-full bg-white border border-gray-200 shadow-sm rounded-xl hover:shadow-md transition-shadow">
-              <div className="p-4 md:p-6">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                  {cat.name}
-                </h3>
-                <span className="block mb-1 text-xs font-semibold uppercase text-blue-600">
-                  Origin: {cat.origin || 'Unknown'}
-                </span>
-                <p className="mt-3 text-gray-500 line-clamp-3">
-                  {cat.description || 'No description available'}
-                </p>
-
-                <div className="mt-4 space-y-3">
-                  {/* Adaptability Progress Bar */}
-                  <ProgressBar
-                    label="Adaptability"
-                    value={cat.adaptability}
-                    maxValue={5}
-                    colorClass={getColorForAttribute('adaptability')}
-                  />
-
-                  {/* Affection Level Progress Bar */}
-                  <ProgressBar
-                    label="Affection Level"
-                    value={cat.affection_level}
-                    maxValue={5}
-                    colorClass={getColorForAttribute('affection_level')}
-                  />
-
-                  {/* Intelligence Progress Bar */}
-                  <ProgressBar
-                    label="Intelligence"
-                    value={cat.intelligence}
-                    maxValue={5}
-                    colorClass={getColorForAttribute('intelligence')}
-                  />
-
-                  {/* Life Span text only */}
-                  <div className="flex justify-between">
-                    <span className="text-sm font-medium text-gray-700">Life Span:</span>
-                    <span className="text-sm font-medium text-gray-700">{cat.life_span} years</span>
-                  </div>
-                </div>
-              </div>
+      <div id="cat-grid" className="mt-12">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">Cat Breeds ({pagination.totalItems})</h2>
+          {pagination.totalItems > 0 && (
+            <div className="text-sm text-gray-500">
+                  Showing {Math.min(pagination.currentPage * 9, pagination.totalItems) - Math.min((pagination.currentPage - 1) * 9, pagination.totalItems)} of {pagination.totalItems} breeds
             </div>
-          ))}
+          )}
         </div>
+
+        <CatCardGrid cats={currentCats} />
+
+        {pagination.totalPages > 1 && (
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalPages={pagination.totalPages}
+            onPageChange={pagination.handlePageChange}
+            darkMode={false}
+          />
+        )}
       </div>
     </div>
   );
