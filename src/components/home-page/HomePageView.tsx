@@ -1,10 +1,10 @@
 import React, { JSX } from 'react';
 import { HomePageViewProps } from './HomePageController';
-
 import { CatCardGrid } from './components/cat-card-grid/CatCardGrid';
 import { BarChartComponent } from './components/charts/BarChartComponent';
 import { PieChartComponent } from './components/charts/PieChartComponent';
 import { LineChartComponent } from './components/charts/LineChartComponent';
+import { FilterBar } from './components/FilterComponents';
 
 export const HomePageView: React.FC<HomePageViewProps> = ({
   isLoading,
@@ -12,6 +12,8 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
   processedCats,
   chartData,
   colors,
+  filters,
+  handlers,
 }): JSX.Element => {
 
   if (isLoading) {
@@ -76,6 +78,21 @@ export const HomePageView: React.FC<HomePageViewProps> = ({
           title="Life Span Distribution"
           data={chartData.lifeSpanData}
           stroke={colors[4]}
+        />
+      </div>
+
+      {/* Filter Bar */}
+      <div className="my-8">
+        <FilterBar
+          searchTerm={filters.searchTerm}
+          filterBy={filters.filterBy}
+          sortBy={filters.sortBy}
+          sortDirection={filters.sortDirection}
+          onSearchChange={handlers.handleSearchChange}
+          onFilterChange={handlers.handleFilterChange}
+          onSortChange={handlers.handleSortChange}
+          onSortDirectionToggle={handlers.handleSortDirectionToggle}
+          darkMode={false} // Set to true for dark mode
         />
       </div>
 

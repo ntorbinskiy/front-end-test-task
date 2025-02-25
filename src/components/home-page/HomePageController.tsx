@@ -1,10 +1,14 @@
-import React, {  useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { useAppSelector } from '../../store/store';
 import { useGetCatBreedsQuery } from '../../services/cats-service';
 import {
+  SortOption,
+  FilterOption,
+  SortDirection,
   ChartDataItem,
   LifeSpanDataItem,
+  processData,
   prepareChartsData,
 } from './home-model';
 
@@ -14,7 +18,6 @@ import { SerializedError } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 // Define chart color palette
-// eslint-disable-next-line react-refresh/only-export-components
 export const COLORS: string[] = [
   '#0088FE',
   '#00C49F',
@@ -30,7 +33,7 @@ export const COLORS: string[] = [
 
 export interface HomePageViewProps {
     isLoading: boolean;
-    error:  FetchBaseQueryError | SerializedError | undefined;
+    error: FetchBaseQueryError | SerializedError | undefined;
     processedCats: CatBreed[];
     chartData: {
         adaptabilityData: ChartDataItem[];
@@ -41,6 +44,18 @@ export interface HomePageViewProps {
         lifeSpanData: LifeSpanDataItem[];
     };
     colors: typeof COLORS;
+    filters: {
+        sortBy: SortOption;
+        sortDirection: SortDirection;
+        filterBy: FilterOption;
+        searchTerm: string;
+    };
+    handlers: {
+        handleSortChange: (option: SortOption) => void;
+        handleSortDirectionToggle: () => void;
+        handleFilterChange: (option: FilterOption) => void;
+        handleSearchChange: (value: string) => void;
+    };
 }
 
 export const HomePageController: React.FC = () => {
@@ -50,10 +65,29 @@ export const HomePageController: React.FC = () => {
   // RTK Query hook for fetching data
   const { data: cats = [], isLoading, error } = useGetCatBreedsQuery();
 
+  // State for sorting and filtering
+  const [sortBy, setSortBy] = useState<SortOption>('name');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [filterBy, setFilterBy] = useState<FilterOption>('all');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+
+  // Combined filters state for processing
+  const filters = useMemo(() => ({
+    sortBy,
+    sortDirection,
+    filterBy,
+    searchTerm,
+  }), [sortBy, sortDirection, filterBy, searchTerm]);
+
+  // Process the data based on sort, filter, and search options
+  const processedCats = useMemo(() =>
+    processData(cats, filters),
+  [cats, filters]);
+
+  // Prepare chart data
   const chartData = useMemo(() =>
     prepareChartsData(cats),
-  [cats],
-  );
+  [cats]);
 
   // Effect to check authentication
   useEffect(() => {
@@ -62,12 +96,39 @@ export const HomePageController: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
+  // Handle filter changes
+  const handleFilterChange = (option: FilterOption): void => {
+    setFilterBy(option);
+  };
+
+  // Handle sort changes
+  const handleSortChange = (option: SortOption): void => {
+    setSortBy(option);
+  };
+
+  // Toggle sort direction
+  const handleSortDirectionToggle = (): void => {
+    setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+  };
+
+  // Handle search changes
+  const handleSearchChange = (value: string): void => {
+    setSearchTerm(value);
+  };
+
   const viewProps: HomePageViewProps = {
     isLoading,
     error,
-    processedCats: [],
+    processedCats,
     chartData,
     colors: COLORS,
+    filters,
+    handlers: {
+      handleSortChange,
+      handleSortDirectionToggle,
+      handleFilterChange,
+      handleSearchChange,
+    },
   };
 
   return <HomePageView {...viewProps} />;
